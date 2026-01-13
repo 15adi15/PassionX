@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+*/node_modules/
+
+# Environment variables (SECRETS)
+.env
+*/.env
+
+# Build outputs
+dist/
+build/
+
+# OS generated files
+.DS_Store
+Thumbs.db
