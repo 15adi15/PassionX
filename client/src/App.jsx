@@ -28,7 +28,14 @@ const AppRoutes = () => {
       <main className={`page-content ${isBoxed ? 'page-content-boxed' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/discover" element={<Home />} />
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/auth"
             element={user ? <Navigate to="/discover" replace /> : <Auth />}

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GlassLogin } from '@/components/ui/liquid-glass-login';
 
 const Auth = () => {
   const { user, login, register } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
   const [error, setError] = useState('');
 
@@ -17,7 +18,11 @@ const Auth = () => {
     }
   }, [searchParams]);
 
-  if (user) return <Navigate to="/discover" replace />;
+  const targetPath = location.state?.from?.pathname
+    ? `${location.state.from.pathname}${location.state.from.search || ''}`
+    : '/discover';
+
+  if (user) return <Navigate to={targetPath} replace />;
 
   const handleSubmit = async (values) => {
     setError('');
