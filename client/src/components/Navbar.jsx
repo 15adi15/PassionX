@@ -1,33 +1,79 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/auth');
   };
 
-  if (!user) return null;
+  const isLanding = location.pathname === '/';
 
   return (
     <nav style={styles.nav}>
       <div style={styles.inner}>
+        {/* Brand */}
         <Link to="/" style={styles.brand}>
-          <span style={styles.brandIcon}>✦</span> PassionX
+          <span style={styles.brandIcon}>✦</span>
+          <span style={styles.brandText}>PassionX</span>
         </Link>
+
+        {/* Navigation Links */}
         <div style={styles.links}>
-          <Link to="/" style={styles.link}>
-            Discover
+          <Link
+            to="/"
+            style={{
+              ...styles.link,
+              ...(location.pathname === '/' ? styles.activeLink : {}),
+            }}
+          >
+            Home
           </Link>
-          <Link to="/profile" style={styles.link}>
-            Profile
+          <Link
+            to="/discover"
+            style={{
+              ...styles.link,
+              ...(location.pathname === '/discover' ? styles.activeLink : {}),
+            }}
+          >
+            Discover People
           </Link>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            Logout
-          </button>
+
+          {user ? (
+            <>
+              <Link
+                to="/profile"
+                style={{
+                  ...styles.link,
+                  ...(location.pathname === '/profile' ? styles.activeLink : {}),
+                }}
+              >
+                Profile
+              </Link>
+              <div style={styles.userBadge}>
+                <span style={styles.avatarDot}>
+                  {user.name ? user.name[0].toUpperCase() : 'U'}
+                </span>
+                <span style={styles.userName}>{user.name?.split(' ')[0]}</span>
+              </div>
+              <button onClick={handleLogout} style={styles.logoutBtn}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <div style={styles.authButtons}>
+              <Link to="/auth" style={styles.signInBtn}>
+                Sign In
+              </Link>
+              <Link to="/auth?mode=signup" style={styles.joinBtn}>
+                Join Free
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>
@@ -38,15 +84,15 @@ const styles = {
   nav: {
     position: 'sticky',
     top: 0,
-    zIndex: 100,
+    zIndex: 1000,
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    background: 'rgba(255, 255, 255, 0.45)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
-    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.04)',
+    background: 'rgba(250, 248, 245, 0.82)',
+    borderBottom: '1px solid rgba(226, 232, 240, 0.7)',
+    transition: 'background 0.3s ease',
   },
   inner: {
-    maxWidth: 1200,
+    maxWidth: 1280,
     margin: '0 auto',
     padding: '0.85rem 2rem',
     display: 'flex',
@@ -54,40 +100,97 @@ const styles = {
     alignItems: 'center',
   },
   brand: {
-    fontSize: '1.35rem',
-    fontWeight: 600,
-    letterSpacing: '-0.02em',
+    fontSize: '1.45rem',
+    fontWeight: 700,
+    letterSpacing: '-0.03em',
     color: '#0f172a',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.4rem',
+    gap: '0.45rem',
+    fontFamily: 'var(--font-serif)',
   },
   brandIcon: {
-    fontSize: '1.1rem',
-    color: '#38bdf8',
+    fontSize: '1.2rem',
+    color: '#0284c7',
+  },
+  brandText: {
+    fontFamily: 'var(--font-serif)',
+    letterSpacing: '-0.02em',
   },
   links: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.8rem',
+    gap: '1.75rem',
   },
   link: {
-    fontSize: '0.9rem',
-    fontWeight: 400,
+    fontSize: '0.92rem',
+    fontWeight: 500,
     color: '#475569',
-    transition: 'color 0.3s ease',
-    letterSpacing: '0.01em',
+    transition: 'color 0.2s ease',
+    letterSpacing: '-0.01em',
+  },
+  activeLink: {
+    color: '#0f172a',
+    fontWeight: 600,
+  },
+  userBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.25rem 0.65rem 0.25rem 0.35rem',
+    background: 'rgba(56, 189, 248, 0.1)',
+    borderRadius: 20,
+    border: '1px solid rgba(56, 189, 248, 0.25)',
+  },
+  avatarDot: {
+    width: 26,
+    height: 26,
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+    color: '#ffffff',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userName: {
+    fontSize: '0.84rem',
+    fontWeight: 500,
+    color: '#0369a1',
   },
   logoutBtn: {
-    fontSize: '0.85rem',
+    fontSize: '0.84rem',
     fontWeight: 500,
-    color: '#ef4444',
+    color: '#b91c1c',
     background: 'rgba(239, 68, 68, 0.08)',
-    border: '1px solid rgba(239, 68, 68, 0.15)',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
     borderRadius: 20,
-    padding: '0.4rem 1.1rem',
-    transition: 'all 0.3s ease',
+    padding: '0.42rem 1.1rem',
     cursor: 'pointer',
+  },
+  authButtons: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.9rem',
+  },
+  signInBtn: {
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    color: '#0f172a',
+    padding: '0.45rem 1rem',
+    borderRadius: 20,
+    transition: 'all 0.2s ease',
+  },
+  joinBtn: {
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    color: '#ffffff',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+    padding: '0.5rem 1.25rem',
+    borderRadius: 24,
+    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.18)',
+    transition: 'all 0.25s ease',
   },
 };
 

@@ -1,14 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
-import Auth from './pages/Auth';
+import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import Auth from './pages/Auth';
 import './App.css';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -18,22 +20,18 @@ const AppRoutes = () => {
     );
   }
 
+  const isBoxed = location.pathname === '/discover' || location.pathname === '/profile';
+
   return (
     <div className="app-container">
       <Navbar />
-      <div className="page-content">
+      <main className={`page-content ${isBoxed ? 'page-content-boxed' : ''}`}>
         <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/discover" element={<Home />} />
           <Route
             path="/auth"
-            element={user ? <Navigate to="/" replace /> : <Auth />}
-          />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
+            element={user ? <Navigate to="/discover" replace /> : <Auth />}
           />
           <Route
             path="/profile"
@@ -45,7 +43,7 @@ const AppRoutes = () => {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 };

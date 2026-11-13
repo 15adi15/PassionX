@@ -1,16 +1,19 @@
 const express = require('express');
 const User = require('../models/User');
-const auth = require('../middleware/auth');
+const { auth, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
 // @route   GET /api/users/discover
-// @desc    Discover users (with optional filters), excluding logged-in user
-router.get('/discover', auth, async (req, res) => {
+// @desc    Discover users (with optional filters)
+router.get('/discover', optionalAuth, async (req, res) => {
   try {
     const { passion, city, state, search } = req.query;
 
-    const filter = { _id: { $ne: req.user } };
+    const filter = {};
+    if (req.user) {
+      filter._id = { $ne: req.user };
+    }
 
     if (passion) {
       filter.passions = { $regex: passion, $options: 'i' };

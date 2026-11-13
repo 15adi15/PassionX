@@ -8,8 +8,12 @@
 
 .page-content {
   flex: 1;
-  padding: 2rem;
+  width: 100%;
+}
+
+.page-content-boxed {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
   width: 100%;
 }

@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -84,7 +84,9 @@ router.post('/login', async (req, res) => {
 // @desc    Get current logged-in user
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user).select('-password');
+    const user = await User.findById(req.user)
+      .select('-password')
+      .populate('connections', '-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

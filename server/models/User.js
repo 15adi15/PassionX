@@ -21,10 +21,28 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  aboutMe: {
+    type: String,
+    default: '',
+  },
+  lookingFor: {
+    type: String,
+    default: '',
+  },
   passions: {
     type: [String],
     default: [],
   },
+  interests: {
+    type: [String],
+    default: [],
+  },
+  connections: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   location: {
     city: { type: String, default: '' },
     state: { type: String, default: '' },
