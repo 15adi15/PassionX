@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === 'production') {
   const clientDistPath = path.resolve(__dirname, '../client/dist');
   app.use(express.static(clientDistPath));
 
-  app.get('*', (req, res) => {
+  app.get('/{*splat}', (req, res) => {
     res.sendFile(path.resolve(clientDistPath, 'index.html'));
   });
 }
