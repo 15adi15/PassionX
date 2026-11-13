@@ -54,12 +54,16 @@ const Navbar = () => {
               >
                 Profile
               </Link>
-              <div style={styles.userBadge}>
-                <span style={styles.avatarDot}>
-                  {user.name ? user.name[0].toUpperCase() : 'U'}
-                </span>
+              <Link to="/profile" style={styles.userBadge}>
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} style={styles.navAvatarImg} />
+                ) : (
+                  <span style={styles.avatarDot}>
+                    {user.name ? user.name[0].toUpperCase() : 'U'}
+                  </span>
+                )}
                 <span style={styles.userName}>{user.name?.split(' ')[0]}</span>
-              </div>
+              </Link>
               <button onClick={handleLogout} style={styles.logoutBtn}>
                 Logout
               </button>
@@ -141,6 +145,12 @@ const styles = {
     background: 'rgba(56, 189, 248, 0.1)',
     borderRadius: 20,
     border: '1px solid rgba(56, 189, 248, 0.25)',
+  },
+  navAvatarImg: {
+    width: 26,
+    height: 26,
+    borderRadius: '50%',
+    objectFit: 'cover',
   },
   avatarDot: {
     width: 26,

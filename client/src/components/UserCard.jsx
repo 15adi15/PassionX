@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -40,30 +41,58 @@ const getAvatarColor = (name) => {
 };
 
 const UserCard = ({ user }) => {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, connectUser, disconnectUser } = useAuth();
+  const [connecting, setConnecting] = useState(false);
+
   const initials = getInitials(user.name);
   const avatarBg = getAvatarColor(user.name);
   const city = user.location?.city;
   const state = user.location?.state;
   const locationStr = [city, state].filter(Boolean).join(', ');
 
+  const isConnected = currentUser?.connections?.some(
+    (c) => (typeof c === 'string' ? c : c._id) === user._id
+  );
+
+  const handleToggleConnect = async () => {
+    if (!currentUser) return;
+    setConnecting(true);
+    try {
+      if (isConnected) {
+        await disconnectUser(user._id);
+      } else {
+        await connectUser(user._id);
+      }
+    } catch (err) {
+      console.error('Failed to update connection', err);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
   return (
     <div style={styles.card}>
       <div style={styles.cardHeader}>
         {/* Avatar */}
-        <div style={{ ...styles.avatar, backgroundColor: avatarBg }}>
-          <span style={styles.initials}>{initials}</span>
-        </div>
+        {user.avatar ? (
+          <img src={user.avatar} alt={user.name} style={styles.avatarImg} />
+        ) : (
+          <div style={{ ...styles.avatar, backgroundColor: avatarBg }}>
+            <span style={styles.initials}>{initials}</span>
+          </div>
+        )}
         <div style={styles.headerInfo}>
           <h3 style={styles.name}>{user.name}</h3>
           {locationStr && <p style={styles.location}>📍 {locationStr}</p>}
         </div>
       </div>
 
-      {/* Bio */}
-      {user.bio ? (
+      {/* Bio / About */}
+      {user.aboutMe || user.bio ? (
         <p style={styles.bio}>
-          {user.bio.length > 110 ? user.bio.slice(0, 110) + '…' : user.bio}
+          {(user.aboutMe || user.bio).length > 110
+            ? (user.aboutMe || user.bio).slice(0, 110) + '…'
+            : user.aboutMe || user.bio}
         </p>
       ) : (
         <p style={{ ...styles.bio, fontStyle: 'italic', opacity: 0.7 }}>
@@ -71,7 +100,7 @@ const UserCard = ({ user }) => {
         </p>
       )}
 
-      {/* Passion tags */}
+      {/* Passion & Interests tags */}
       {user.passions?.length > 0 && (
         <div style={styles.tags}>
           {user.passions.map((p) => {
@@ -91,12 +120,31 @@ const UserCard = ({ user }) => {
       {/* Connect action */}
       <div style={styles.cardFooter}>
         {currentUser ? (
-          <a
-            href={`mailto:${user.email}?subject=Hi%20${encodeURIComponent(user.name)},%20saw%20you%20on%20PassionX!`}
-            style={styles.connectBtn}
-          >
-            Say Hello 👋
-          </a>
+          <div style={styles.actionRow}>
+            <button
+              onClick={handleToggleConnect}
+              disabled={connecting}
+              style={{
+                ...styles.connectBtn,
+                ...(isConnected ? styles.connectedBtn : {}),
+              }}
+            >
+              {connecting
+                ? 'Updating...'
+                : isConnected
+                ? '✓ Connected'
+                : 'Connect ✦'}
+            </button>
+            <a
+              href={`mailto:${user.email}?subject=Hi%20${encodeURIComponent(
+                user.name
+              )},%20saw%20you%20on%20PassionX!`}
+              style={styles.helloBtn}
+              title="Send email"
+            >
+              Say Hello 👋
+            </a>
+          </div>
         ) : (
           <Link to="/auth?mode=signup" style={styles.connectBtn}>
             Connect ✦
@@ -133,6 +181,14 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  },
+  avatarImg: {
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    objectFit: 'cover',
     flexShrink: 0,
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   },
@@ -183,11 +239,15 @@ const styles = {
     paddingTop: '0.6rem',
     borderTop: '1px solid rgba(241, 245, 249, 0.9)',
   },
+  actionRow: {
+    display: 'flex',
+    gap: '0.6rem',
+  },
   connectBtn: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    flex: 1,
     padding: '0.55rem 1rem',
     borderRadius: 14,
     backgroundColor: '#0f172a',
@@ -195,6 +255,25 @@ const styles = {
     fontSize: '0.86rem',
     fontWeight: 600,
     textAlign: 'center',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+  },
+  connectedBtn: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    color: '#059669',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+  },
+  helloBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.55rem 0.9rem',
+    borderRadius: 14,
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    color: '#0284c7',
+    border: '1px solid rgba(56, 189, 248, 0.3)',
+    fontSize: '0.84rem',
+    fontWeight: 600,
     transition: 'all 0.2s ease',
   },
 };

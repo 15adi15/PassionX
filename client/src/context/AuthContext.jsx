@@ -70,9 +70,42 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const connectUser = async (targetUserId) => {
+    const { data } = await API.post(`/users/connect/${targetUserId}`);
+    setUser(data);
+    return data;
+  };
+
+  const disconnectUser = async (targetUserId) => {
+    const { data } = await API.post(`/users/disconnect/${targetUserId}`);
+    setUser(data);
+    return data;
+  };
+
+  const refreshUser = async () => {
+    try {
+      const { data } = await API.get('/auth/me');
+      setUser(data);
+      return data;
+    } catch {
+      // ignore
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, register, logout, updateProfile }}
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        register,
+        logout,
+        updateProfile,
+        connectUser,
+        disconnectUser,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
