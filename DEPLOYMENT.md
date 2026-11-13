@@ -23,8 +23,9 @@ This guide walks you through deploying PassionX.
    - Under **IP Access List**, click **Allow Access from Anywhere** (`0.0.0.0/0`) so Render can connect.
 4. Click **Connect** → **Drivers** (Node.js) and copy your connection string:
    ```text
-   mongodb+srv://2024adityabhore_db_user:ttghqEJEiryg7kXN@cluster0.mfeje1v.mongodb.net/passionx?retryWrites=true&w=majority
+   mongodb+srv://<username>:<password>@cluster0.mfeje1v.mongodb.net/passionx?retryWrites=true&w=majority
    ```
+   *(Replace `<username>` and `<password>` with your database user credentials in your environment variables, never commit secrets into repository files).*
 
 ---
 
