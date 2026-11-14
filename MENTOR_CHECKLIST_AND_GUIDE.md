@@ -127,3 +127,4 @@ The hero video is fully optimized for production:
 - Added `defaultMuted`, `muted`, `playsInline`, and `preload="auto"` attributes.
 - Used `videoRef` with programmatic `video.play().catch(...)` on mount.
 - Added high-resolution poster image fallback (`poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1920&auto=format&fit=crop"`) so low-bandwidth or battery-saver devices always display a rich background.
+

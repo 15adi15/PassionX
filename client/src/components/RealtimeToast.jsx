@@ -136,3 +136,4 @@ const styles = {
 };
 
 export default RealtimeToast;
+
