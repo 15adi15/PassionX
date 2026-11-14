@@ -46,10 +46,12 @@ const Auth = () => {
         );
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Authentication failed. Please check your credentials.';
+      let msg = 'Authentication failed. Please check your credentials.';
+      if (err.response?.data?.errors) {
+        msg = Object.values(err.response.data.errors).join(' ');
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      }
       setError(msg);
       throw err;
     }

@@ -135,7 +135,11 @@ const Profile = () => {
       });
       setEditing(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+      if (err.response?.data?.errors) {
+        setError(Object.values(err.response.data.errors).join(' '));
+      } else {
+        setError(err.response?.data?.message || 'Failed to update profile');
+      }
     } finally {
       setSaving(false);
     }
@@ -647,7 +651,7 @@ const styles = {
   },
   mainInfo: {
     flex: 1,
-    minWidth: 260,
+    minWidth: 'min(100%, 240px)',
   },
   nameRow: {
     display: 'flex',
@@ -746,7 +750,7 @@ const styles = {
   /* LAYOUT */
   profileLayout: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '1.75rem',
   },
   leftCol: {

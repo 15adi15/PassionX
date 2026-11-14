@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import RealtimeToast from './components/RealtimeToast';
+import ChatModal from './components/ChatModal';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -51,13 +54,17 @@ const AppRoutes = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <RealtimeToast />
+      <ChatModal />
     </div>
   );
 };
 
 const App = () => (
   <AuthProvider>
-    <AppRoutes />
+    <SocketProvider>
+      <AppRoutes />
+    </SocketProvider>
   </AuthProvider>
 );
 

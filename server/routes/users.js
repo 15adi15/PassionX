@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const { auth, optionalAuth } = require('../middleware/auth');
+const { validateProfileUpdate, validateObjectId } = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -43,7 +44,7 @@ router.get('/discover', optionalAuth, async (req, res) => {
 
 // @route   GET /api/users/:id
 // @desc    Get user profile by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, validateObjectId('id'), async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
@@ -57,7 +58,7 @@ router.get('/:id', auth, async (req, res) => {
 
 // @route   PUT /api/users/profile
 // @desc    Update own profile
-router.put('/profile', auth, async (req, res) => {
+router.put('/profile', auth, validateProfileUpdate, async (req, res) => {
   try {
     const { name, bio, aboutMe, lookingFor, passions, interests, location, avatar } = req.body;
 
@@ -91,7 +92,7 @@ router.put('/profile', auth, async (req, res) => {
 
 // @route   POST /api/users/connect/:id
 // @desc    Connect with a user (add to connections)
-router.post('/connect/:id', auth, async (req, res) => {
+router.post('/connect/:id', auth, validateObjectId('id'), async (req, res) => {
   try {
     const targetUserId = req.params.id;
     if (targetUserId === req.user.toString()) {
@@ -125,7 +126,7 @@ router.post('/connect/:id', auth, async (req, res) => {
 
 // @route   POST /api/users/disconnect/:id
 // @desc    Remove connection
-router.post('/disconnect/:id', auth, async (req, res) => {
+router.post('/disconnect/:id', auth, validateObjectId('id'), async (req, res) => {
   try {
     const targetUserId = req.params.id;
 

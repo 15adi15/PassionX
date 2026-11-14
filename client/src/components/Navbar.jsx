@@ -1,13 +1,20 @@
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
+    setMobileMenuOpen(false);
     navigate('/auth');
   };
 
@@ -22,8 +29,8 @@ const Navbar = () => {
           <span style={styles.brandText}>PassionX</span>
         </Link>
 
-        {/* Navigation Links */}
-        <div style={styles.links}>
+        {/* Desktop Navigation Links */}
+        <div className="nav-desktop">
           <Link
             to="/"
             style={{
@@ -79,7 +86,66 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Hamburger Button */}
+        <button
+          className="nav-mobile-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
       </div>
+
+      {/* Mobile Drawer Dropdown */}
+      {mobileMenuOpen && (
+        <div className="nav-mobile-menu">
+          <Link
+            to="/"
+            style={{
+              ...styles.mobileLink,
+              ...(location.pathname === '/' ? styles.activeMobileLink : {}),
+            }}
+          >
+            Home
+          </Link>
+          <Link
+            to="/discover"
+            style={{
+              ...styles.mobileLink,
+              ...(location.pathname === '/discover' ? styles.activeMobileLink : {}),
+            }}
+          >
+            Discover People
+          </Link>
+
+          {user ? (
+            <>
+              <Link
+                to="/profile"
+                style={{
+                  ...styles.mobileLink,
+                  ...(location.pathname === '/profile' ? styles.activeMobileLink : {}),
+                }}
+              >
+                Profile ({user.name?.split(' ')[0]})
+              </Link>
+              <button onClick={handleLogout} style={styles.mobileLogoutBtn}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <div style={styles.mobileAuthRow}>
+              <Link to="/auth" style={styles.mobileSignInBtn}>
+                Sign In
+              </Link>
+              <Link to="/auth?mode=signup" style={styles.mobileJoinBtn}>
+                Join Free
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
@@ -201,6 +267,54 @@ const styles = {
     borderRadius: 24,
     boxShadow: '0 4px 14px rgba(15, 23, 42, 0.18)',
     transition: 'all 0.25s ease',
+  },
+  mobileLink: {
+    fontSize: '1rem',
+    fontWeight: 500,
+    color: '#475569',
+    padding: '0.6rem 0',
+    borderBottom: '1px solid rgba(241, 245, 249, 0.8)',
+  },
+  activeMobileLink: {
+    color: '#0f172a',
+    fontWeight: 700,
+  },
+  mobileLogoutBtn: {
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    color: '#dc2626',
+    background: 'rgba(239, 68, 68, 0.08)',
+    border: 'none',
+    borderRadius: 12,
+    padding: '0.65rem 1rem',
+    textAlign: 'center',
+    cursor: 'pointer',
+    marginTop: '0.4rem',
+  },
+  mobileAuthRow: {
+    display: 'flex',
+    gap: '0.75rem',
+    marginTop: '0.5rem',
+  },
+  mobileSignInBtn: {
+    flex: 1,
+    textAlign: 'center',
+    padding: '0.65rem 1rem',
+    borderRadius: 14,
+    border: '1px solid #cbd5e1',
+    fontWeight: 600,
+    fontSize: '0.92rem',
+    color: '#0f172a',
+  },
+  mobileJoinBtn: {
+    flex: 1,
+    textAlign: 'center',
+    padding: '0.65rem 1rem',
+    borderRadius: 14,
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
+    fontWeight: 600,
+    fontSize: '0.92rem',
   },
 };
 

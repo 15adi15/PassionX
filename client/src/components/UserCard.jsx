@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 
 const PASSION_COLORS = [
   { bg: 'rgba(56, 189, 248, 0.12)', color: '#0284c7' },
@@ -42,6 +43,7 @@ const getAvatarColor = (name) => {
 
 const UserCard = ({ user }) => {
   const { user: currentUser, connectUser, disconnectUser } = useAuth();
+  const { isUserOnline, openChat, notifyConnection } = useSocket();
   const [connecting, setConnecting] = useState(false);
 
   const initials = getInitials(user.name);
@@ -49,6 +51,7 @@ const UserCard = ({ user }) => {
   const city = user.location?.city;
   const state = user.location?.state;
   const locationStr = [city, state].filter(Boolean).join(', ');
+  const isOnline = isUserOnline(user._id);
 
   const isConnected = currentUser?.connections?.some(
     (c) => (typeof c === 'string' ? c : c._id) === user._id
@@ -62,6 +65,7 @@ const UserCard = ({ user }) => {
         await disconnectUser(user._id);
       } else {
         await connectUser(user._id);
+        notifyConnection(user._id);
       }
     } catch (err) {
       console.error('Failed to update connection', err);
@@ -73,16 +77,27 @@ const UserCard = ({ user }) => {
   return (
     <div style={styles.card}>
       <div style={styles.cardHeader}>
-        {/* Avatar */}
-        {user.avatar ? (
-          <img src={user.avatar} alt={user.name} style={styles.avatarImg} />
-        ) : (
-          <div style={{ ...styles.avatar, backgroundColor: avatarBg }}>
-            <span style={styles.initials}>{initials}</span>
-          </div>
-        )}
+        {/* Avatar with live WebSocket online indicator */}
+        <div style={styles.avatarContainer}>
+          {user.avatar ? (
+            <img src={user.avatar} alt={user.name} style={styles.avatarImg} />
+          ) : (
+            <div style={{ ...styles.avatar, backgroundColor: avatarBg }}>
+              <span style={styles.initials}>{initials}</span>
+            </div>
+          )}
+          {isOnline && (
+            <span
+              style={styles.onlineDot}
+              title="Active now via WebSocket"
+            />
+          )}
+        </div>
         <div style={styles.headerInfo}>
-          <h3 style={styles.name}>{user.name}</h3>
+          <div style={styles.nameRow}>
+            <h3 style={styles.name}>{user.name}</h3>
+            {isOnline && <span style={styles.onlineBadgeText}>Live</span>}
+          </div>
           {locationStr && <p style={styles.location}>📍 {locationStr}</p>}
         </div>
       </div>
@@ -117,7 +132,7 @@ const UserCard = ({ user }) => {
         </div>
       )}
 
-      {/* Connect action */}
+      {/* Connect action & Live Chat */}
       <div style={styles.cardFooter}>
         {currentUser ? (
           <div style={styles.actionRow}>
@@ -135,15 +150,25 @@ const UserCard = ({ user }) => {
                 ? '✓ Connected'
                 : 'Connect ✦'}
             </button>
-            <a
-              href={`mailto:${user.email}?subject=Hi%20${encodeURIComponent(
-                user.name
-              )},%20saw%20you%20on%20PassionX!`}
-              style={styles.helloBtn}
-              title="Send email"
-            >
-              Say Hello 👋
-            </a>
+            {isConnected ? (
+              <button
+                onClick={() => openChat(user)}
+                style={styles.chatBtn}
+                title="Open real-time live chat"
+              >
+                Chat 💬
+              </button>
+            ) : (
+              <a
+                href={`mailto:${user.email}?subject=Hi%20${encodeURIComponent(
+                  user.name
+                )},%20saw%20you%20on%20PassionX!`}
+                style={styles.helloBtn}
+                title="Send email"
+              >
+                Say Hello 👋
+              </a>
+            )}
           </div>
         ) : (
           <Link to="/auth?mode=signup" style={styles.connectBtn}>
@@ -173,6 +198,36 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.9rem',
+  },
+  avatarContainer: {
+    position: 'relative',
+    flexShrink: 0,
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: '1px',
+    right: '1px',
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    backgroundColor: '#10b981',
+    border: '2px solid #ffffff',
+    boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)',
+  },
+  nameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.45rem',
+  },
+  onlineBadgeText: {
+    fontSize: '0.62rem',
+    fontWeight: 700,
+    color: '#059669',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    padding: '0.1rem 0.35rem',
+    borderRadius: 6,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
   },
   avatar: {
     width: 48,
@@ -275,6 +330,21 @@ const styles = {
     fontSize: '0.84rem',
     fontWeight: 600,
     transition: 'all 0.2s ease',
+  },
+  chatBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.55rem 0.95rem',
+    borderRadius: 14,
+    backgroundColor: '#0284c7',
+    color: '#ffffff',
+    fontSize: '0.84rem',
+    fontWeight: 600,
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
   },
 };
 

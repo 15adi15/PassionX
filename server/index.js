@@ -1,8 +1,10 @@
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/db');
+const { initSocket } = require('./socket');
 
 // Load env vars
 dotenv.config();
@@ -11,6 +13,10 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize WebSockets
+initSocket(server);
 
 // Body parser
 app.use(express.json({ limit: '10mb' }));
@@ -55,6 +61,6 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} (with WebSockets enabled)`);
 });

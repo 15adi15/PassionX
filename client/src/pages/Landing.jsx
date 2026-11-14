@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const TESTIMONIALS_ROW1 = [
@@ -145,6 +145,20 @@ const CITIES = [
 const Landing = () => {
   const navigate = useNavigate();
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.defaultMuted = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Background video autoplay deferred until user interaction:', err);
+        });
+      }
+    }
+  }, []);
 
   return (
     <div style={styles.container}>
@@ -153,14 +167,18 @@ const Landing = () => {
         {/* Background Video */}
         <div style={styles.videoWrapper}>
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
+            defaultMuted
             playsInline
+            preload="auto"
+            poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1920&auto=format&fit=crop"
             onLoadedData={() => setIsVideoLoaded(true)}
             style={{
               ...styles.video,
-              opacity: isVideoLoaded ? 1 : 0.6,
+              opacity: isVideoLoaded ? 1 : 0.85,
             }}
           >
             <source src="/hero-bg.mp4" type="video/mp4" />
@@ -567,6 +585,9 @@ const styles = {
     width: '100%',
     height: '100%',
     zIndex: 1,
+    backgroundImage: 'radial-gradient(ellipse at center, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%), url(https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1920&auto=format&fit=crop)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
   video: {
     width: '100%',
