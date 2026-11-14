@@ -1,0 +1,434 @@
+{
+  "info": {
+    "_postman_id": "passionx-api-collection",
+    "name": "PassionX REST API",
+    "description": "Complete Postman collection for testing PassionX REST API endpoints (Auth, Discovery, Profiles, Connections, and Validation).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sampleUserId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Checks whether the backend server is running and responsive."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('token', json.token);",
+                  "        console.log('Saved JWT token to collection variable');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ravi Sharma\",\n  \"email\": \"ravi.sharma@example.com\",\n  \"password\": \"password123\",\n  \"passions\": [\"music\", \"astronomy\", \"guitar\"],\n  \"location\": {\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Registers a new user and automatically captures the JWT token in {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('token', json.token);",
+                  "        console.log('Saved JWT token to collection variable');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ravi.sharma@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates user and saves JWT token to {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User Profile (Auth Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Fetches current authenticated user profile using Bearer JWT token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Discovery & Community",
+      "item": [
+        {
+          "name": "Discover Users (All)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var list = pm.response.json();",
+                  "    if (Array.isArray(list) && list.length > 0) {",
+                  "        pm.collectionVariables.set('sampleUserId', list[0]._id);",
+                  "        console.log('Saved first discover user ID to {{sampleUserId}}:', list[0]._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/discover",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "discover"]
+            },
+            "description": "Fetches community members list. Automatically captures the first user's ID into {{sampleUserId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Discover Users (Filter by Passion)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/discover?passion=music",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "discover"],
+              "query": [
+                {
+                  "key": "passion",
+                  "value": "music"
+                }
+              ]
+            },
+            "description": "Filters discovery directory for members with 'music' passion."
+          },
+          "response": []
+        },
+        {
+          "name": "Discover Users (Filter by City)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/discover?city=Mumbai",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "discover"],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Mumbai"
+                }
+              ]
+            },
+            "description": "Filters discovery directory by city (e.g. Mumbai)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{sampleUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{sampleUserId}}"]
+            },
+            "description": "Retrieves another member's profile by their 24-character MongoDB ObjectId."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. User Profile",
+      "item": [
+        {
+          "name": "Update Profile Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ravi Sharma\",\n  \"bio\": \"Passionate acoustic guitarist and indie composer.\",\n  \"aboutMe\": \"I have been playing guitar for 6 years. Love weekend acoustic jam sessions and stargazing retreats.\",\n  \"lookingFor\": \"Looking for vocalists and percussionists in Mumbai for casual jam sessions.\",\n  \"passions\": [\"music\", \"guitar\", \"astronomy\", \"composition\"],\n  \"location\": {\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Updates authenticated user's aboutMe, lookingFor, bio, passions, and locality."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Connections & Network",
+      "item": [
+        {
+          "name": "Connect With User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/connect/{{sampleUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "connect", "{{sampleUserId}}"]
+            },
+            "description": "Creates a mutual connection between current user and target user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Connected Users (My People)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/connections",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "connections"]
+            },
+            "description": "Retrieves the array of all users connected to the current user."
+          },
+          "response": []
+        },
+        {
+          "name": "Disconnect User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/disconnect/{{sampleUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "disconnect", "{{sampleUserId}}"]
+            },
+            "description": "Removes mutual connection."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Validation Testing (Error Cases)",
+      "item": [
+        {
+          "name": "Register with Invalid Email (Should return 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"email\": \"not-a-valid-email\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Verifies that invalid email format is rejected by validateRegister with HTTP 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Register with Short Password (Should return 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test.pass@example.com\",\n  \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Verifies password shorter than 6 characters is rejected with HTTP 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid ObjectId Param (Should return 400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/not-a-valid-object-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "not-a-valid-object-id"]
+            },
+            "description": "Verifies validateObjectId catches non-hex MongoDB ID with HTTP 400."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
