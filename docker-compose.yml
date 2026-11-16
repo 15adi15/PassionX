@@ -1,19 +1,30 @@
 services:
-  app:
+  backend:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
-    container_name: passionx_app
+    container_name: passionx_backend
     ports:
       - "5001:5001"
     environment:
       - NODE_ENV=production
       - PORT=5001
       - MONGODB_URI=mongodb://mongo:27017/passionx
-      - JWT_SECRET=passionx_jwt_secret_token_change_in_production
+      - JWT_SECRET=passionx_jwt_secret_token_2026_secure
     depends_on:
       mongo:
         condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: passionx_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
     restart: unless-stopped
 
   mongo:
@@ -32,4 +43,3 @@ services:
 
 volumes:
   mongo-data:
-
