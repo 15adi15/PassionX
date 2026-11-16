@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import UserCard from '../components/UserCard';
 
@@ -64,6 +65,29 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [adminModal, setAdminModal] = useState({
+    open: false,
+    loading: false,
+    data: null,
+    error: null,
+  });
+
+  const handleTestAdminAccess = async () => {
+    setAdminModal({ open: true, loading: true, data: null, error: null });
+    try {
+      const res = await API.get('/users/admin/analytics');
+      setAdminModal({ open: true, loading: false, data: res.data, error: null });
+    } catch (err) {
+      const status = err.response?.status || 403;
+      const data = err.response?.data || { message: err.message };
+      setAdminModal({
+        open: true,
+        loading: false,
+        data: null,
+        error: { status, ...data },
+      });
+    }
+  };
 
   const [form, setForm] = useState({
     name: user?.name || '',
@@ -210,6 +234,13 @@ const Profile = () => {
 
           {/* Quick Header Actions */}
           <div style={styles.headerActions}>
+            <button
+              onClick={handleTestAdminAccess}
+              style={styles.adminTestBtn}
+              title="Click to test Role-Based Access Control (403 Forbidden)"
+            >
+              🛡️ Admin Access (RBAC Test)
+            </button>
             {!editing ? (
               <button onClick={() => setEditing(true)} style={styles.editBtn}>
                 ✏️ Edit Profile
@@ -570,6 +601,83 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* ================= ADMIN RBAC DEMONSTRATION MODAL ================= */}
+      {adminModal.open && (
+        <div style={styles.adminModalOverlay} onClick={() => setAdminModal({ ...adminModal, open: false })}>
+          <div style={styles.adminModalCard} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.adminModalHeader}>
+              <div>
+                <h3 style={styles.adminModalTitle}>🛡️ Role-Based Access Control (RBAC) Test</h3>
+                <p style={styles.adminModalSub}>Target Endpoint: <code>GET /api/users/admin/analytics</code></p>
+              </div>
+              <button
+                onClick={() => setAdminModal({ ...adminModal, open: false })}
+                style={styles.adminModalClose}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {adminModal.loading ? (
+              <div style={styles.adminModalBodyLoading}>
+                <div style={styles.spinner} />
+                <p style={{ marginTop: '1rem', color: '#64748b' }}>
+                  Sending request with <code>Authorization: Bearer &lt;token&gt;</code>...
+                </p>
+              </div>
+            ) : adminModal.error ? (
+              <div style={styles.adminModalBody}>
+                <div style={styles.adminStatusBadgeRejected}>
+                  ⛔ HTTP {adminModal.error.status || 403} Forbidden
+                </div>
+                <h4 style={styles.adminErrorHeading}>Authorization Denied by Server Middleware</h4>
+                <div style={styles.adminServerMsgBox}>
+                  <strong>Server Response:</strong>
+                  <p style={{ margin: '0.35rem 0 0 0', color: '#b91c1c' }}>
+                    "{adminModal.error.message || 'Forbidden: Your account role is not authorized.'}"
+                  </p>
+                </div>
+
+                <div style={styles.adminExplanationBox}>
+                  <p style={styles.adminExplanationTitle}>📌 Viva Demonstration Points for Faculty:</p>
+                  <ul style={styles.adminExplanationList}>
+                    <li>
+                      <strong>1. Authentication (AuthN) Succeeded:</strong> Your browser sent a cryptographically valid JWT in the <code>Authorization</code> header.
+                    </li>
+                    <li>
+                      <strong>2. Authorization (AuthZ) Failed:</strong> The backend middleware <code>authorize('admin')</code> checked your account role: <code>"{user?.role || 'user'}"</code> and rejected the call.
+                    </li>
+                    <li>
+                      <strong>3. 403 vs 401:</strong> 401 is returned when the user identity is unknown (not logged in). <strong>403 Forbidden</strong> is returned because the user is verified, but lacks sufficient permissions.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div style={styles.adminModalBody}>
+                <div style={styles.adminStatusBadgeApproved}>
+                  ✅ HTTP 200 OK — Admin Authorization Granted
+                </div>
+                <p style={styles.adminSuccessMessage}>{adminModal.data?.message}</p>
+                <pre style={styles.adminDataPre}>
+                  {JSON.stringify(adminModal.data?.metrics, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            <div style={styles.adminModalFooter}>
+              <button
+                onClick={() => setAdminModal({ ...adminModal, open: false })}
+                style={styles.adminCloseBtn}
+              >
+                Close Demonstration
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -688,6 +796,21 @@ const styles = {
   },
   headerActions: {
     marginLeft: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+  },
+  adminTestBtn: {
+    padding: '0.6rem 1.1rem',
+    borderRadius: 20,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    color: '#b91c1c',
+    border: '1px solid rgba(239, 68, 68, 0.35)',
+    fontSize: '0.84rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   editBtn: {
     padding: '0.6rem 1.4rem',
@@ -1111,6 +1234,148 @@ const styles = {
     fontSize: '0.88rem',
     marginBottom: '1.5rem',
     textAlign: 'center',
+  },
+  adminModalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    backdropFilter: 'blur(6px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9999,
+    padding: '1rem',
+  },
+  adminModalCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 540,
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    border: '1px solid rgba(226, 232, 240, 0.9)',
+    overflow: 'hidden',
+  },
+  adminModalHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: '1.25rem 1.5rem',
+    borderBottom: '1px solid #f1f5f9',
+    backgroundColor: '#f8fafc',
+  },
+  adminModalTitle: {
+    fontSize: '1.08rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    margin: 0,
+  },
+  adminModalSub: {
+    fontSize: '0.82rem',
+    color: '#64748b',
+    margin: '0.25rem 0 0 0',
+  },
+  adminModalClose: {
+    background: 'transparent',
+    border: 'none',
+    fontSize: '1.2rem',
+    color: '#94a3b8',
+    cursor: 'pointer',
+    padding: '0.2rem',
+  },
+  adminModalBody: {
+    padding: '1.5rem',
+  },
+  adminModalBodyLoading: {
+    padding: '3rem 1.5rem',
+    textAlign: 'center',
+  },
+  adminStatusBadgeRejected: {
+    display: 'inline-block',
+    padding: '0.35rem 0.85rem',
+    borderRadius: 16,
+    backgroundColor: '#fee2e2',
+    color: '#b91c1c',
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    marginBottom: '0.85rem',
+  },
+  adminStatusBadgeApproved: {
+    display: 'inline-block',
+    padding: '0.35rem 0.85rem',
+    borderRadius: 16,
+    backgroundColor: '#dcfce7',
+    color: '#15803d',
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    marginBottom: '0.85rem',
+  },
+  adminErrorHeading: {
+    fontSize: '1.05rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    margin: '0 0 0.5rem 0',
+  },
+  adminServerMsgBox: {
+    backgroundColor: '#fff1f2',
+    border: '1px solid #fecdd3',
+    borderRadius: 10,
+    padding: '0.75rem 1rem',
+    fontSize: '0.88rem',
+    marginBottom: '1rem',
+  },
+  adminExplanationBox: {
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: 12,
+    padding: '1rem',
+  },
+  adminExplanationTitle: {
+    fontSize: '0.82rem',
+    fontWeight: 700,
+    color: '#334155',
+    margin: '0 0 0.5rem 0',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  adminExplanationList: {
+    margin: 0,
+    paddingLeft: '1.2rem',
+    fontSize: '0.84rem',
+    color: '#475569',
+    lineHeight: 1.6,
+  },
+  adminModalFooter: {
+    padding: '1rem 1.5rem',
+    borderTop: '1px solid #f1f5f9',
+    backgroundColor: '#f8fafc',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  adminCloseBtn: {
+    padding: '0.5rem 1.25rem',
+    borderRadius: 16,
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  adminSuccessMessage: {
+    fontSize: '0.92rem',
+    color: '#15803d',
+    fontWeight: 600,
+    marginBottom: '0.75rem',
+  },
+  adminDataPre: {
+    backgroundColor: '#0f172a',
+    color: '#38bdf8',
+    padding: '1rem',
+    borderRadius: 12,
+    fontSize: '0.82rem',
+    overflowX: 'auto',
   },
 };
 
