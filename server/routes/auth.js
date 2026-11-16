@@ -15,7 +15,7 @@ const generateToken = (id) => {
 // @desc    Register a new user
 router.post('/register', validateRegister, async (req, res) => {
   try {
-    const { name, email, password, passions, location } = req.body;
+    const { name, email, password, passions, location, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -23,7 +23,14 @@ router.post('/register', validateRegister, async (req, res) => {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    const user = await User.create({ name, email, password, passions, location });
+    const user = await User.create({
+      name,
+      email,
+      password,
+      passions,
+      location,
+      role: role === 'admin' ? 'admin' : 'user',
+    });
 
     const token = generateToken(user._id);
 
@@ -37,6 +44,7 @@ router.post('/register', validateRegister, async (req, res) => {
         passions: user.passions,
         location: user.location,
         avatar: user.avatar,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });
@@ -73,6 +81,7 @@ router.post('/login', validateLogin, async (req, res) => {
         passions: user.passions,
         location: user.location,
         avatar: user.avatar,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });

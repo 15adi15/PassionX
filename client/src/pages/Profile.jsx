@@ -224,7 +224,11 @@ const Profile = () => {
           <div style={styles.mainInfo}>
             <div style={styles.nameRow}>
               <h1 style={styles.userName}>{user.name}</h1>
-              <span style={styles.verifiedBadge}>✦ PassionX Member</span>
+              {user.role === 'admin' ? (
+                <span style={styles.adminBadge}>🛡️ System Administrator</span>
+              ) : (
+                <span style={styles.verifiedBadge}>✦ PassionX Member</span>
+              )}
             </div>
             <p style={styles.userEmail}>{user.email}</p>
             <p style={styles.userLocation}>
@@ -639,21 +643,6 @@ const Profile = () => {
                     "{adminModal.error.message || 'Forbidden: Your account role is not authorized.'}"
                   </p>
                 </div>
-
-                <div style={styles.adminExplanationBox}>
-                  <p style={styles.adminExplanationTitle}>📌 Viva Demonstration Points for Faculty:</p>
-                  <ul style={styles.adminExplanationList}>
-                    <li>
-                      <strong>1. Authentication (AuthN) Succeeded:</strong> Your browser sent a cryptographically valid JWT in the <code>Authorization</code> header.
-                    </li>
-                    <li>
-                      <strong>2. Authorization (AuthZ) Failed:</strong> The backend middleware <code>authorize('admin')</code> checked your account role: <code>"{user?.role || 'user'}"</code> and rejected the call.
-                    </li>
-                    <li>
-                      <strong>3. 403 vs 401:</strong> 401 is returned when the user identity is unknown (not logged in). <strong>403 Forbidden</strong> is returned because the user is verified, but lacks sufficient permissions.
-                    </li>
-                  </ul>
-                </div>
               </div>
             ) : (
               <div style={styles.adminModalBody}>
@@ -782,6 +771,15 @@ const styles = {
     padding: '0.2rem 0.65rem',
     borderRadius: 12,
     border: '1px solid rgba(56, 189, 248, 0.25)',
+  },
+  adminBadge: {
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    color: '#b91c1c',
+    backgroundColor: '#fee2e2',
+    padding: '0.2rem 0.65rem',
+    borderRadius: 12,
+    border: '1px solid rgba(239, 68, 68, 0.35)',
   },
   userEmail: {
     fontSize: '0.88rem',

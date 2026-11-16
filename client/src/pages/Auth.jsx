@@ -42,7 +42,8 @@ const Auth = () => {
           {
             city: values.city || '',
             state: values.state || '',
-          }
+          },
+          values.role || 'user'
         );
       }
     } catch (err) {

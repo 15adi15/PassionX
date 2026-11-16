@@ -35,6 +35,7 @@ export type GlassLoginProps = {
     passions?: string;
     city?: string;
     state?: string;
+    role?: 'user' | 'admin';
   }) => void | Promise<void>;
   onProviderSignIn?: (provider: GlassLoginProvider) => void | Promise<void>;
   forgotPasswordHref?: string;
@@ -61,6 +62,7 @@ export function GlassLogin({
   const id = useId();
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState<"form" | GlassLoginProvider | null>(null);
+  const [role, setRole] = useState<"user" | "admin">("user");
 
   const displayTitle = title ?? (isSignUp ? "Create an account" : "Welcome back");
   const displaySubtitle = subtitle ?? (isSignUp ? "Join people who share your passion" : "Sign in to continue");
@@ -116,6 +118,7 @@ export function GlassLogin({
         passions: String(data.get("passions") ?? "").trim(),
         city: String(data.get("city") ?? "").trim(),
         state: String(data.get("state") ?? "").trim(),
+        role: isSignUp ? role : undefined,
       }),
     );
   };
@@ -269,6 +272,51 @@ export function GlassLogin({
                       style={inputPaddingStyle}
                     />
                   </Field>
+                </div>
+
+                {/* Account Role Selection for Authorization Demo */}
+                <div className="rounded-2xl border border-white/20 bg-white/10 p-3.5 backdrop-blur-md">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-white/90">
+                      🛡️ Account Role (AuthZ Demo)
+                    </span>
+                    <span className="text-[11px] font-medium text-white/70">
+                      {role === "admin" ? "⚡ Admin Access" : "Standard"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRole("user")}
+                      className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[13px] font-semibold transition-all ${
+                        role === "user"
+                          ? "bg-white text-slate-900 shadow-md ring-2 ring-white/50"
+                          : "bg-black/25 text-white/70 hover:bg-black/35 hover:text-white"
+                      }`}
+                    >
+                      <span>👤 Member</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("admin")}
+                      className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[13px] font-semibold transition-all ${
+                        role === "admin"
+                          ? "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md ring-2 ring-red-400"
+                          : "bg-black/25 text-white/70 hover:bg-black/35 hover:text-white"
+                      }`}
+                    >
+                      <span>🛡️ Admin</span>
+                    </button>
+                  </div>
+                  {role === "admin" ? (
+                    <p className="mt-2 text-[11px] text-rose-200 leading-tight">
+                      ⚡ <strong>Administrator Role:</strong> Can view, manage, and edit ANY user's profile across the entire platform.
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-[11px] text-white/60 leading-tight">
+                      Standard member: Can manage own profile and connect with other members.
+                    </p>
+                  )}
                 </div>
               </>
             )}
