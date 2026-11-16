@@ -11,6 +11,7 @@ const PASSION_COLORS = [
   { bg: 'rgba(252, 165, 165, 0.15)', color: '#dc2626' },
   { bg: 'rgba(253, 224, 71, 0.18)', color: '#a16207' },
   { bg: 'rgba(147, 197, 253, 0.18)', color: '#2563eb' },
+  
   { bg: 'rgba(167, 243, 208, 0.18)', color: '#059669' },
 ];
 

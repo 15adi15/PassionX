@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const { auth, optionalAuth } = require('../middleware/auth');
+const { auth, authorize, authorizeOwnership, optionalAuth } = require('../middleware/auth');
 const { validateProfileUpdate, validateObjectId } = require('../middleware/validate');
 
 const router = express.Router();
@@ -161,5 +161,55 @@ router.get('/connections', auth, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+// @route   GET /api/users/admin/analytics
+// @desc    Admin-only dashboard metrics (Demonstrates Role-Based Authorization - RBAC)
+// @access  Private (Admin Role Only -> 403 Forbidden for normal users)
+router.get('/admin/analytics', auth, authorize('admin'), async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const cityAgg = await User.aggregate([
+      { $group: { _id: '$location.city', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
+    res.json({
+      success: true,
+      message: 'Admin authorization granted',
+      metrics: {
+        totalUsers,
+        cityDistribution: cityAgg,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PUT /api/users/manage/:id
+// @desc    Update specific user record (Demonstrates Resource Ownership Authorization)
+// @access  Private (Owner or Admin Only -> 403 Forbidden if updating another user)
+router.put(
+  '/manage/:id',
+  auth,
+  validateObjectId('id'),
+  authorizeOwnership('id'),
+  validateProfileUpdate,
+  async (req, res) => {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true, runValidators: true }
+      ).select('-password');
+      res.json({
+        success: true,
+        message: 'Resource ownership authorized: Profile updated successfully.',
+        user,
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
+);
 
 module.exports = router;

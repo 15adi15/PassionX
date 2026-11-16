@@ -429,6 +429,94 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "6. Authentication vs. Authorization Demonstration",
+      "item": [
+        {
+          "name": "AuthN Failure 1: Missing JWT Token (401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Tests Authentication: Sending a request without Authorization header returns HTTP 401 Unauthorized."
+          },
+          "response": []
+        },
+        {
+          "name": "AuthN Failure 2: Forged / Invalid JWT Token (401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer this.is.a.forged.and.invalid.jwt.token",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Tests Authentication: Tampered or invalid token fails cryptographic signature verification and returns HTTP 401 Unauthorized."
+          },
+          "response": []
+        },
+        {
+          "name": "AuthZ Failure 1: Role-Based RBAC Access Denied (403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/admin/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "admin", "analytics"]
+            },
+            "description": "Tests Authorization: User is authenticated (valid JWT), but lacks the 'admin' role, returning HTTP 403 Forbidden."
+          },
+          "response": []
+        },
+        {
+          "name": "AuthZ Failure 2: Resource Ownership Violation (403 Forbidden)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacked User Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/manage/{{sampleUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "manage", "{{sampleUserId}}"]
+            },
+            "description": "Tests Authorization: Authenticated user attempts to modify another member's profile record, returning HTTP 403 Forbidden."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
+
