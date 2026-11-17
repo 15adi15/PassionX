@@ -47,11 +47,22 @@ const Auth = () => {
         );
       }
     } catch (err) {
-      let msg = 'Authentication failed. Please check your credentials.';
+      let msg = isLogin
+        ? 'Sign-in failed. Please check your email and password.'
+        : 'Registration failed. Please check your information.';
+
       if (err.response?.data?.errors) {
-        msg = Object.values(err.response.data.errors).join(' ');
+        msg = typeof err.response.data.errors === 'object'
+          ? Object.values(err.response.data.errors).join(' ')
+          : String(err.response.data.errors);
       } else if (err.response?.data?.message) {
         msg = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        msg = err.response.data.error;
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        msg = 'Cannot connect to backend server. Please make sure the server is running on port 5001.';
+      } else if (err.message) {
+        msg = err.message;
       }
       setError(msg);
       throw err;
