@@ -185,9 +185,40 @@ router.get('/admin/analytics', auth, authorize('admin'), async (req, res) => {
   }
 });
 
+// @route   PUT /api/users/vulnerable-update/:id
+// @desc    Pre-Fix Vulnerable Route (Demonstrates IDOR weakness - No ownership check)
+// @access  Private (Authenticated User, but missing ownership validation -> Returns 200 OK)
+router.put(
+  '/vulnerable-update/:id',
+  auth,
+  validateObjectId('id'),
+  validateProfileUpdate,
+  async (req, res) => {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      if (!user) {
+        return res.status(404).json({ message: 'User resource not found' });
+      }
+
+      res.json({
+        success: true,
+        message: 'Pre-Fix Vulnerable State: Profile updated without verifying resource ownership!',
+        user,
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
+);
+
 // @route   PUT /api/users/manage/:id
-// @desc    Update specific user record (Demonstrates Resource Ownership Authorization)
-// @access  Private (Owner or Admin Only -> 403 Forbidden if updating another user)
+// @desc    Post-Fix Secure Route (Enforces Resource Ownership Authorization -> 403 Forbidden)
+// @access  Private (Owner or Admin Only)
 router.put(
   '/manage/:id',
   auth,
@@ -205,6 +236,30 @@ router.put(
         success: true,
         message: 'Resource ownership authorized: Profile updated successfully.',
         user,
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
+);
+
+// @route   DELETE /api/users/manage/:id
+// @desc    Post-Fix Secure Route for Deletion (Enforces Resource Ownership -> 403 Forbidden / 404)
+// @access  Private (Owner or Admin Only)
+router.delete(
+  '/manage/:id',
+  auth,
+  validateObjectId('id'),
+  authorizeOwnership('id'),
+  async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: 'Resource not found or you are not authorized to delete it.' });
+      }
+      res.json({
+        success: true,
+        message: 'Resource ownership authorized: Resource deleted successfully.',
       });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error: error.message });
