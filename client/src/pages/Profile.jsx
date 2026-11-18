@@ -197,7 +197,7 @@ const Profile = () => {
         {/* Soft decorative cover gradient */}
         <div style={styles.coverBanner} />
 
-        <div style={styles.headerContent}>
+        <div className="profile-header-content" style={styles.headerContent}>
           {/* Avatar with Photo Option */}
           <div style={styles.avatarWrapper}>
             {form.avatar || user.avatar ? (
@@ -237,7 +237,7 @@ const Profile = () => {
           </div>
 
           {/* Quick Header Actions */}
-          <div style={styles.headerActions}>
+          <div className="profile-header-actions" style={styles.headerActions}>
             <button
               onClick={handleTestAdminAccess}
               style={styles.adminTestBtn}
@@ -267,8 +267,9 @@ const Profile = () => {
         </div>
 
         {/* ================= TABS SYSTEM ================= */}
-        <div style={styles.tabsRow}>
+        <div className="profile-tabs-row" style={styles.tabsRow}>
           <button
+            className="profile-tab-btn"
             onClick={() => setActiveTab('profile')}
             style={{
               ...styles.tabBtn,
@@ -278,6 +279,7 @@ const Profile = () => {
             ✦ Profile & About Me
           </button>
           <button
+            className="profile-tab-btn"
             onClick={() => setActiveTab('people')}
             style={{
               ...styles.tabBtn,
@@ -352,7 +354,7 @@ const Profile = () => {
                   <span style={{ ...styles.sectionBar, backgroundColor: '#f59e0b' }} />
                   <h3 style={styles.sectionTitle}>City & Locality</h3>
                 </div>
-                <div style={styles.locationInputsRow}>
+                <div className="responsive-grid-2" style={styles.locationInputsRow}>
                   <input
                     type="text"
                     name="city"
@@ -676,7 +678,7 @@ const styles = {
   wrapper: {
     maxWidth: 1200,
     margin: '0 auto',
-    padding: '2.5rem 1.5rem 5rem 1.5rem',
+    padding: 'clamp(0.75rem, 2.5vw, 2rem) clamp(0.25rem, 1.5vw, 1rem) 4rem',
   },
 
   /* HEADER BANNER */
@@ -871,23 +873,23 @@ const styles = {
   /* LAYOUT */
   profileLayout: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '1.75rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+    gap: '1.25rem',
   },
   leftCol: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.75rem',
+    gap: '1.25rem',
   },
   rightCol: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.75rem',
+    gap: '1.25rem',
   },
 
   /* SECTION CARDS */
   sectionCard: {
-    padding: '1.8rem',
+    padding: 'clamp(1.1rem, 3vw, 1.8rem)',
     borderRadius: 22,
     backgroundColor: '#ffffff',
     border: '1px solid rgba(226, 232, 240, 0.85)',
@@ -1080,8 +1082,8 @@ const styles = {
   },
   peopleGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 275px), 1fr))',
+    gap: '1.25rem',
   },
   connectedCard: {},
   emptyPeopleCard: {

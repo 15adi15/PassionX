@@ -56,8 +56,10 @@ const styles = {
     marginBottom: '1.5rem',
   },
   input: {
-    flex: '1 1 180px',
-    padding: '0.65rem 1rem',
+    flex: '1 1 160px',
+    minWidth: 0,
+    width: '100%',
+    padding: '0.65rem 0.9rem',
     fontSize: '0.88rem',
     fontWeight: 400,
     color: '#1e293b',

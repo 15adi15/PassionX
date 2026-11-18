@@ -40,7 +40,7 @@ const getAvatarColor = (name) => {
   for (let i = 0; i < (name || '').length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return colors[Math.abs(hash) % colors.length]; 
 };
 
 const UserCard = ({ user }) => {
@@ -291,7 +291,7 @@ const UserCard = ({ user }) => {
                 />
               </div>
 
-              <div style={styles.modalGrid2}>
+              <div className="responsive-grid-2" style={styles.modalGrid2}>
                 <div style={styles.inputGroup}>
                   <label style={styles.inputLabel}>City</label>
                   <input
@@ -456,7 +456,8 @@ const styles = {
   },
   actionRow: {
     display: 'flex',
-    gap: '0.6rem',
+    flexWrap: 'wrap',
+    gap: '0.55rem',
   },
   connectBtn: {
     display: 'inline-flex',

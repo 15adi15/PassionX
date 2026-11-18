@@ -164,7 +164,7 @@ const styles = {
   inner: {
     maxWidth: 1280,
     margin: '0 auto',
-    padding: '0.85rem 2rem',
+    padding: '0.75rem clamp(1rem, 3vw, 2rem)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',

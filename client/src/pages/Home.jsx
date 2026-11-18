@@ -172,7 +172,7 @@ const Home = () => {
 
 const styles = {
   page: {
-    padding: '2.5rem 0 5rem 0',
+    padding: 'clamp(1rem, 3vw, 2.5rem) 0 4rem 0',
   },
   guestBanner: {
     display: 'flex',
@@ -267,8 +267,8 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 275px), 1fr))',
+    gap: '1.25rem',
   },
   center: {
     display: 'flex',

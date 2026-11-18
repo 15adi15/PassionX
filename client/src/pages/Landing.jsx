@@ -568,13 +568,13 @@ const styles = {
   /* HERO */
   heroSection: {
     position: 'relative',
-    minHeight: '100vh',
+    minHeight: 'calc(100vh - 64px)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    padding: '6rem 2rem 5rem 2rem',
+    padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem) clamp(4rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)',
     overflow: 'hidden',
     backgroundColor: '#0f172a',
   },
@@ -749,7 +749,7 @@ const styles = {
   /* EDITORIAL SECTION */
   editorialSection: {
     backgroundColor: 'var(--color-ivory, #FAF8F5)',
-    padding: '6rem 2rem',
+    padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)',
   },
   editorialContainer: {
     maxWidth: 1200,
@@ -757,11 +757,11 @@ const styles = {
   },
   editorialTopRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-    gap: '3rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+    gap: 'clamp(1.5rem, 4vw, 3rem)',
     alignItems: 'baseline',
-    marginBottom: '4.5rem',
-    paddingBottom: '2.5rem',
+    marginBottom: 'clamp(2.5rem, 5vw, 4.5rem)',
+    paddingBottom: '2rem',
     borderBottom: '1px solid rgba(203, 213, 225, 0.6)',
   },
   editorialLeftCol: {},
@@ -784,9 +784,9 @@ const styles = {
   /* Pillars Grid */
   pillarsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '2.5rem',
-    marginBottom: '6rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+    gap: 'clamp(1.5rem, 4vw, 2.5rem)',
+    marginBottom: 'clamp(3rem, 6vw, 6rem)',
   },
   pillarCard: {
     display: 'flex',
@@ -830,10 +830,10 @@ const styles = {
   /* Split Section */
   editorialSplitSection: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-    gap: '4rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+    gap: 'clamp(2rem, 5vw, 4rem)',
     alignItems: 'center',
-    paddingTop: '2rem',
+    paddingTop: '1.5rem',
   },
   splitTextCol: {},
   splitHeading: {
@@ -889,7 +889,7 @@ const styles = {
   },
   splitImage: {
     width: '100%',
-    height: 440,
+    height: 'clamp(240px, 50vw, 440px)',
     objectFit: 'cover',
     display: 'block',
   },
@@ -968,8 +968,8 @@ const styles = {
     animation: 'marqueeRightToLeft 36s linear infinite',
   },
   testimonialCard: {
-    width: 360,
-    padding: '1.6rem',
+    width: 'min(340px, 84vw)',
+    padding: '1.4rem',
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
     border: '1px solid rgba(255, 255, 255, 0.9)',
@@ -1025,15 +1025,15 @@ const styles = {
 
   /* HAPPY GALLERY */
   gallerySection: {
-    padding: '6rem 2rem',
+    padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)',
     backgroundColor: 'var(--color-ivory, #FAF8F5)',
   },
   galleryGrid: {
     maxWidth: 1200,
     margin: '0 auto',
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
+    gap: '1.25rem',
   },
   galleryItem: {
     position: 'relative',
@@ -1085,15 +1085,15 @@ const styles = {
 
   /* PASSIONS */
   passionsSection: {
-    padding: '6rem 2rem',
+    padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)',
     backgroundColor: '#F7F5F0',
   },
   passionsGrid: {
     maxWidth: 1200,
     margin: '0 auto',
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 220px), 1fr))',
+    gap: '1.25rem',
   },
   passionCard: {
     padding: '1.8rem',
@@ -1130,15 +1130,15 @@ const styles = {
 
   /* CITY CHAPTERS */
   citySection: {
-    padding: '6rem 2rem',
+    padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)',
     backgroundColor: 'var(--color-ivory, #FAF8F5)',
   },
   cityContainer: {
     maxWidth: 1200,
     margin: '0 auto',
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-    gap: '4rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+    gap: 'clamp(2rem, 5vw, 4rem)',
     alignItems: 'center',
   },
   cityTextCol: {},
@@ -1200,14 +1200,14 @@ const styles = {
 
   /* CTA HERO */
   ctaSection: {
-    padding: '5rem 2rem',
+    padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)',
     maxWidth: 1200,
     margin: '0 auto',
   },
   ctaCard: {
     position: 'relative',
-    borderRadius: 32,
-    padding: '5rem 2rem',
+    borderRadius: 28,
+    padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1.25rem, 4vw, 2rem)',
     textAlign: 'center',
     backgroundColor: '#0f172a',
     overflow: 'hidden',
@@ -1291,17 +1291,17 @@ const styles = {
   footer: {
     backgroundColor: '#090d16',
     color: 'rgba(255, 255, 255, 0.7)',
-    padding: '4rem 2rem 2.5rem 2rem',
+    padding: 'clamp(2.5rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem) 2rem',
     borderTop: '1px solid rgba(255, 255, 255, 0.08)',
   },
   footerInner: {
     maxWidth: 1200,
-    margin: '0 auto 3rem auto',
+    margin: '0 auto 2.5rem auto',
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: '2rem',
+    gap: '1.5rem',
   },
   footerBrand: {},
   footerLogo: {
@@ -1318,7 +1318,8 @@ const styles = {
   },
   footerLinks: {
     display: 'flex',
-    gap: '2rem',
+    flexWrap: 'wrap',
+    gap: '1.25rem',
   },
   footerLink: {
     fontSize: '0.9rem',

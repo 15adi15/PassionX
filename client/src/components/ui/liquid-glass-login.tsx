@@ -77,13 +77,30 @@ export function GlassLogin({
     }
   };
 
-  // Drag the card by its glass
+  // Drag the card by its glass (desktop mouse only; resets on viewport resize)
   const cardRef = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
   const drag = useRef<{ px: number; py: number; x: number; y: number } | null>(null);
 
+  useEffect(() => {
+    const resetPosition = () => {
+      offset.current = { x: 0, y: 0 };
+      if (cardRef.current) {
+        cardRef.current.style.transform = "";
+      }
+    };
+    window.addEventListener("resize", resetPosition);
+    return () => window.removeEventListener("resize", resetPosition);
+  }, []);
+
   const onDragStart = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || (e.target as HTMLElement).closest("input, button, a, label, textarea, select")) return;
+    if (
+      e.pointerType !== "mouse" ||
+      window.innerWidth < 768 ||
+      e.button !== 0 ||
+      (e.target as HTMLElement).closest("input, button, a, label, textarea, select")
+    )
+      return;
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { px: e.clientX, py: e.clientY, ...offset.current };
@@ -126,7 +143,7 @@ export function GlassLogin({
   return (
     <div
       className={cn(
-        "relative flex min-h-dvh w-full items-center justify-center overflow-hidden px-4 py-16 font-sans text-white",
+        "relative flex min-h-[calc(100dvh-64px)] w-full max-w-full items-center justify-center overflow-x-hidden overflow-y-auto px-3 py-8 sm:px-4 sm:py-14 font-sans text-white",
         "bg-[radial-gradient(120%_70%_at_50%_100%,#7a2a0c_0%,#2a0d05_45%,#0a0403_80%)]",
         className,
       )}
@@ -145,17 +162,20 @@ export function GlassLogin({
         onPointerMove={onDragMove}
         onPointerUp={onDragEnd}
         onPointerCancel={onDragEnd}
+        style={{
+          width: "100%",
+          maxWidth: isSignUp ? "min(100%, 480px)" : "min(100%, 420px)",
+        }}
         className={cn(
-          "relative w-full cursor-grab touch-none active:cursor-grabbing [&_input]:cursor-text",
-          isSignUp ? "max-w-[480px]" : "max-w-[420px]",
+          "relative mx-auto w-full min-w-0 cursor-default md:cursor-grab md:active:cursor-grabbing [&_input]:cursor-text",
         )}
       >
         <LiquidGlass
           aria-hidden
-          radius={32}
-          bevelDepth={56}
-          scale={72}
-          aberration={16}
+          radius={28}
+          bevelDepth={36}
+          scale={48}
+          aberration={12}
           frost={0.4}
           tint={0.14}
           className="absolute inset-0 shadow-[0_30px_80px_rgb(0_0_0/0.5),inset_0_1px_0_rgb(255_255_255/0.65),inset_0_-1px_0_rgb(255_255_255/0.15)]"
@@ -164,18 +184,18 @@ export function GlassLogin({
         <form
           onSubmit={handleSubmit}
           aria-busy={pending === "form"}
-          className="relative flex flex-col p-8 sm:p-10"
+          className="relative flex w-full min-w-0 flex-col p-5 sm:p-8 md:p-10"
         >
           {/* Header */}
-          <header className="mb-7 text-center">
-            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-300">
+          <header className="mb-5 sm:mb-7 text-center">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-300">
               <span className="text-[13px]">✦</span>
               <span className="tracking-wide">PassionX</span>
             </div>
-            <h1 className="text-[26px] font-bold tracking-tight text-white [text-shadow:0_2px_12px_rgb(0_0_0/0.4)]">
+            <h1 className="text-[22px] sm:text-[26px] font-bold tracking-tight text-white [text-shadow:0_2px_12px_rgb(0_0_0/0.4)]">
               {displayTitle}
             </h1>
-            <p className="mt-1.5 text-[14px] text-white/70">{displaySubtitle}</p>
+            <p className="mt-1 text-[13px] sm:text-[14px] text-white/70">{displaySubtitle}</p>
           </header>
 
           {/* Error notice */}
@@ -251,7 +271,7 @@ export function GlassLogin({
                   />
                 </Field>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field id={`${id}-city`} label="City" icon={<MapPin />}>
                     <input
                       id={`${id}-city`}
@@ -380,7 +400,7 @@ export function GlassLogin({
           </div>
 
           {/* Social Sign-in Buttons */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {providers.map(({ key, label, Icon }) => (
               <GlassButton
                 key={key}
@@ -388,14 +408,14 @@ export function GlassLogin({
                 aria-label={`Continue with ${label}`}
                 disabled={pending !== null}
                 onClick={() => run(key, () => onProviderSignIn(key))}
-                className="h-11 text-[13px] font-medium"
+                className="h-10 sm:h-11 min-w-0 px-2 text-[11.5px] sm:text-[13px] font-medium"
               >
                 {pending === key ? (
-                  <LoaderCircle className="size-[17px] animate-spin motion-reduce:animate-none" />
+                  <LoaderCircle className="size-[16px] sm:size-[17px] animate-spin motion-reduce:animate-none" />
                 ) : (
-                  <Icon className="size-[17px] shrink-0" />
+                  <Icon className="size-[16px] sm:size-[17px] shrink-0" />
                 )}
-                <span className="max-[359px]:sr-only">{label}</span>
+                <span className="truncate max-[380px]:hidden">{label}</span>
               </GlassButton>
             ))}
           </div>
@@ -807,11 +827,12 @@ export function LiquidGlass({
     [],
   );
 
+  const isSmallScreen = typeof window !== "undefined" && window.innerWidth < 640;
   const backdrop =
     mode === "opaque"
       ? "none"
-      : mode === "simple"
-        ? "blur(16px) saturate(1.8) brightness(1.05)"
+      : mode === "simple" || isSmallScreen
+        ? "blur(18px) saturate(1.8) brightness(1.05)"
         : filter
           ? `url(#${filter.id}) blur(0.5px) saturate(1.85) brightness(1.02)`
           : "blur(10px) saturate(1.6) brightness(1.04)";
